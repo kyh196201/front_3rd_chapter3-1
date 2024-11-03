@@ -300,11 +300,27 @@ describe('fillZero', () => {
 });
 
 describe('formatDate', () => {
-  it('날짜를 YYYY-MM-DD 형식으로 포맷팅한다', () => {});
+  it('날짜를 YYYY-MM-DD 형식으로 포맷팅한다', () => {
+    const date = new Date(2024, 9, 1);
 
-  it('day 파라미터가 제공되면 해당 일자로 포맷팅한다', () => {});
+    expect(formatDate(date)).toBe('2024-10-01');
+  });
 
-  it('월이 한 자리 수일 때 앞에 0을 붙여 포맷팅한다', () => {});
+  it('day 파라미터가 제공되면 해당 일자로 포맷팅한다', () => {
+    const date = new Date(2024, 9, 1);
 
-  it('일이 한 자리 수일 때 앞에 0을 붙여 포맷팅한다', () => {});
+    expect(formatDate(date, 17)).toBe('2024-10-17');
+  });
+
+  it('월이 한 자리 수일 때 앞에 0을 붙여 포맷팅한다', () => {
+    const date = new Date(2025, 0, 10);
+
+    expect(formatDate(date)).toBe('2025-01-10');
+  });
+
+  it('일이 한 자리 수일 때 앞에 0을 붙여 포맷팅한다', () => {
+    const date = new Date(2024, 10, 1);
+
+    expect(formatDate(date)).toBe('2024-11-01');
+  });
 });
