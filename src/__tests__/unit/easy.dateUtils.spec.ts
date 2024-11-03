@@ -84,7 +84,13 @@ describe('getDaysInMonth', () => {
     });
   });
 
-  it('유효하지 않은 월에 대해 적절히 처리한다', () => {});
+  it('유효하지 않은 월에 대해 적절히 처리한다', () => {
+    const year = new Date().getFullYear();
+
+    expect(() => getDaysInMonth(year, -1)).toThrowError(/month/);
+    expect(() => getDaysInMonth(year, 0)).toThrowError(/month/);
+    expect(() => getDaysInMonth(year, 13)).toThrowError(/month/);
+  });
 });
 
 describe('getWeekDates', () => {
