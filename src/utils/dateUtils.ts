@@ -1,6 +1,20 @@
 import { Event } from '../types.ts';
 
 /**
+ * 주어진 년도가 윤년인지 확인합니다.
+ */
+export function isLeapYear(year: number): boolean {
+  // 400으로 나누어 떨어지면 윤년
+  if (year % 400 === 0) return true;
+
+  // 100으로 나누어 떨어지면 평년
+  if (year % 100 === 0) return false;
+
+  // 4로 나누어 떨어지면 윤년
+  return year % 4 === 0;
+}
+
+/**
  * 주어진 년도와 월의 일수를 반환합니다.
  */
 export function getDaysInMonth(year: number, month: number): number {

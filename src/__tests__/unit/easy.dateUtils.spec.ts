@@ -9,16 +9,80 @@ import {
   getWeekDates,
   getWeeksAtMonth,
   isDateInRange,
+  isLeapYear,
 } from '../../utils/dateUtils';
+import { LEAP_YEARS, NO_LEAP_YEARS } from '../fixtures/leapYears';
+
+describe('isLeapYear', () => {
+  test.each([
+    { year: 1, expected: false, description: '1은 윤년이 아닙니다' },
+    { year: 4, expected: true, description: '4는 윤년입니다' },
+    { year: 100, expected: false, description: '100은 100으로 나누어떨어지므로 윤년이 아닙니다' },
+    { year: 400, expected: true, description: '400은 400으로 나누어떨어지므로 윤년입니다' },
+    { year: 1900, expected: false, description: '1900은 100으로 나누어떨어지므로 윤년이 아닙니다' },
+    { year: 2000, expected: true, description: '2000은 400으로 나누어떨어지므로 윤년입니다' },
+    {
+      year: 2004,
+      expected: true,
+      description: '2004는 4로 나누어떨어지고 100으로 나누어떨어지지 않으므로 윤년입니다',
+    },
+    {
+      year: 2008,
+      expected: true,
+      description: '2008은 4로 나누어떨어지고 100으로 나누어떨어지지 않으므로 윤년입니다',
+    },
+    {
+      year: 2010,
+      expected: false,
+      description: '2010은 4로 나누어떨어지지 않으므로 윤년이 아닙니다',
+    },
+    {
+      year: 2012,
+      expected: true,
+      description: '2012는 4로 나누어떨어지고 100으로 나누어떨어지지 않으므로 윤년입니다',
+    },
+    {
+      year: 2024,
+      expected: true,
+      description: '2024는 4로 나누어떨어지고 100으로 나누어떨어지지 않으므로 윤년입니다',
+    },
+  ])('$description', ({ year, expected }) => {
+    expect(isLeapYear(year)).toBe(expected);
+  });
+});
 
 describe('getDaysInMonth', () => {
-  it('1월은 31일 수를 반환한다', () => {});
+  it('1월은 31일 수를 반환한다', () => {
+    const year = new Date().getFullYear();
 
-  it('4월은 30일 일수를 반환한다', () => {});
+    expect(getDaysInMonth(year, 1)).toBe(31);
+  });
 
-  it('윤년의 2월에 대해 29일을 반환한다', () => {});
+  it('4월은 30일 일수를 반환한다', () => {
+    const year = new Date().getFullYear();
 
-  it('평년의 2월에 대해 28일을 반환한다', () => {});
+    expect(getDaysInMonth(year, 4)).toBe(30);
+  });
+
+  it('윤년의 2월에 대해 29일을 반환한다', () => {
+    LEAP_YEARS.forEach((year) => {
+      expect(isLeapYear(year)).toBe(true);
+    });
+
+    LEAP_YEARS.forEach((year) => {
+      expect(getDaysInMonth(year, 2)).toBe(29);
+    });
+  });
+
+  it('평년의 2월에 대해 28일을 반환한다', () => {
+    NO_LEAP_YEARS.forEach((year) => {
+      expect(isLeapYear(year)).toBe(false);
+    });
+
+    NO_LEAP_YEARS.forEach((year) => {
+      expect(getDaysInMonth(year, 2)).toBe(28);
+    });
+  });
 
   it('유효하지 않은 월에 대해 적절히 처리한다', () => {});
 });
