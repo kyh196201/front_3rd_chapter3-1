@@ -47,11 +47,11 @@ export function getWeeksAtMonth(currentDate: Date) {
   const daysInMonth = getDaysInMonth(year, month + 1);
   const firstDayOfMonth = new Date(year, month, 1).getDay();
   const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
-  const weeks = [];
+  const weeks: (number | null)[][] = [];
 
-  const initWeek = () => Array(7).fill(null);
+  const initWeek = (): null[] => Array(7).fill(null);
 
-  let week: Array<number | null> = initWeek();
+  let week: (number | null)[] = initWeek();
 
   for (let i = 0; i < firstDayOfMonth; i++) {
     week[i] = null;
