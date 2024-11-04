@@ -4,7 +4,7 @@ export const EVENTS: Event[] = [
   {
     id: '2b7545a6-ebee-426c-b906-2329bc8d62bd',
     title: '팀 회의',
-    date: '2024-11-1',
+    date: '2024-11-01',
     startTime: '10:00',
     endTime: '11:00',
     description: '주간 팀 미팅',
