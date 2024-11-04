@@ -1,18 +1,21 @@
 import { Event } from '../../types';
+import { isValidDate } from '../../utils/dateUtils';
 import {
   convertEventToDateRange,
   findOverlappingEvents,
   isOverlapping,
   parseDateTime,
 } from '../../utils/eventOverlap';
+import { EVENTS } from '../fixtures/events';
 
-describe.only('parseDateTime', () => {
+describe('parseDateTime', () => {
   // MEMO: 질문: 정확한 Date 객체라는 것이 어떤 뜻인지 잘 모르겠음
   // 유효한 Date 인지 확인하는 건가요?
   it('2024-07-01 14:30을 정확한 Date 객체로 변환한다', () => {
     const date = parseDateTime('2024-07-01', '14:30');
 
     expect(date).toBeInstanceOf(Date);
+    expect(isValidDate(date)).toBe(true);
     expect(date.getFullYear()).toBe(2024);
     expect(date.getMonth()).toBe(6);
     expect(date.getDate()).toBe(1);
@@ -24,24 +27,21 @@ describe.only('parseDateTime', () => {
     const date = parseDateTime('2024-13-01', '14:30');
 
     expect(date).toBeInstanceOf(Date);
-    expect(date.getFullYear()).toBeNaN();
-    expect(date.getTime()).toBeNaN();
+    expect(isValidDate(date)).toBe(false);
   });
 
   it('잘못된 시간 형식에 대해 Invalid Date를 반환한다', () => {
     const date = parseDateTime('2024-12-22', '77:77');
 
     expect(date).toBeInstanceOf(Date);
-    expect(date.getFullYear()).toBeNaN();
-    expect(date.getTime()).toBeNaN();
+    expect(isValidDate(date)).toBe(false);
   });
 
   it('날짜 문자열이 비어있을 때 Invalid Date를 반환한다', () => {
     const date = parseDateTime('', '77:77');
 
     expect(date).toBeInstanceOf(Date);
-    expect(date.getFullYear()).toBeNaN();
-    expect(date.getTime()).toBeNaN();
+    expect(isValidDate(date)).toBe(false);
   });
 });
 
