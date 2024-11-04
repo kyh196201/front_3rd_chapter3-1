@@ -120,3 +120,13 @@ export function formatDate(currentDate: Date, day?: number) {
     fillZero(day ?? currentDate.getDate()),
   ].join('-');
 }
+
+export function isValidDate(date: any): boolean {
+  if (date === null || date === undefined) {
+    return false;
+  }
+
+  const dateObject = date instanceof Date ? date : new Date(date);
+
+  return !isNaN(dateObject.getTime());
+}

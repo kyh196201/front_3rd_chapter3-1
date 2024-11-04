@@ -1,4 +1,3 @@
-import { Event } from '../../types';
 import {
   fillZero,
   formatDate,
@@ -10,6 +9,7 @@ import {
   getWeeksAtMonth,
   isDateInRange,
   isLeapYear,
+  isValidDate,
 } from '../../utils/dateUtils';
 import { EVENTS } from '../fixtures/events';
 import { LEAP_YEARS, NO_LEAP_YEARS } from '../fixtures/leapYears';
@@ -425,5 +425,23 @@ describe('formatDate', () => {
     const date = createDate('2024-11-01');
 
     expect(formatDate(date)).toBe('2024-11-01');
+  });
+});
+
+describe('isValidDate', () => {
+  it('올바른 날짜 형식에 대해 true를 반환한다', () => {
+    const validDates = ['2024-12-01T14:30', new Date(), new Date('2024-11-05')];
+
+    validDates.forEach((date) => {
+      expect(isValidDate(date)).toBe(true);
+    });
+  });
+
+  it('잘못된 날짜 형식에 대해 false를 반환한다', () => {
+    const inValidDates = ['2024-13-01T14:30', new Date('2024-12-22T77:77'), null, undefined, NaN];
+
+    inValidDates.forEach((date) => {
+      expect(isValidDate(date)).toBe(false);
+    });
   });
 });
