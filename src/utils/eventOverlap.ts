@@ -1,5 +1,8 @@
 import { Event, EventForm } from '../types';
 
+/**
+ * ISO 8601 표준 형식의 Date 객체를 반환합니다.
+ */
 export function parseDateTime(date: string, time: string) {
   return new Date(`${date}T${time}`);
 }

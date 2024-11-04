@@ -6,14 +6,43 @@ import {
   parseDateTime,
 } from '../../utils/eventOverlap';
 
-describe('parseDateTime', () => {
-  it('2024-07-01 14:30을 정확한 Date 객체로 변환한다', () => {});
+describe.only('parseDateTime', () => {
+  // MEMO: 질문: 정확한 Date 객체라는 것이 어떤 뜻인지 잘 모르겠음
+  // 유효한 Date 인지 확인하는 건가요?
+  it('2024-07-01 14:30을 정확한 Date 객체로 변환한다', () => {
+    const date = parseDateTime('2024-07-01', '14:30');
 
-  it('잘못된 날짜 형식에 대해 Invalid Date를 반환한다', () => {});
+    expect(date).toBeInstanceOf(Date);
+    expect(date.getFullYear()).toBe(2024);
+    expect(date.getMonth()).toBe(6);
+    expect(date.getDate()).toBe(1);
+    expect(date.getHours()).toBe(14);
+    expect(date.getMinutes()).toBe(30);
+  });
 
-  it('잘못된 시간 형식에 대해 Invalid Date를 반환한다', () => {});
+  it('잘못된 날짜 형식에 대해 Invalid Date를 반환한다', () => {
+    const date = parseDateTime('2024-13-01', '14:30');
 
-  it('날짜 문자열이 비어있을 때 Invalid Date를 반환한다', () => {});
+    expect(date).toBeInstanceOf(Date);
+    expect(date.getFullYear()).toBeNaN();
+    expect(date.getTime()).toBeNaN();
+  });
+
+  it('잘못된 시간 형식에 대해 Invalid Date를 반환한다', () => {
+    const date = parseDateTime('2024-12-22', '77:77');
+
+    expect(date).toBeInstanceOf(Date);
+    expect(date.getFullYear()).toBeNaN();
+    expect(date.getTime()).toBeNaN();
+  });
+
+  it('날짜 문자열이 비어있을 때 Invalid Date를 반환한다', () => {
+    const date = parseDateTime('', '77:77');
+
+    expect(date).toBeInstanceOf(Date);
+    expect(date.getFullYear()).toBeNaN();
+    expect(date.getTime()).toBeNaN();
+  });
 });
 
 describe('convertEventToDateRange', () => {

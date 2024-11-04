@@ -222,7 +222,7 @@ describe('getWeeksAtMonth', () => {
   });
 });
 
-// TODO: 질문: eventUtils에 있는게 더 적절하지 않나요?
+// MEMO: 질문: eventUtils에 있는게 더 적절하지 않나요?
 describe('getEventsForDay', () => {
   it('특정 날짜(1일)에 해당하는 이벤트만 정확히 반환한다', () => {
     const result = getEventsForDay(EVENTS, 1);
