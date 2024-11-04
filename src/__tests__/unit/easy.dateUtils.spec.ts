@@ -11,6 +11,7 @@ import {
   isDateInRange,
   isLeapYear,
 } from '../../utils/dateUtils';
+import { EVENTS } from '../fixtures/events';
 import { LEAP_YEARS, NO_LEAP_YEARS } from '../fixtures/leapYears';
 
 describe('isLeapYear', () => {
@@ -212,14 +213,41 @@ describe('getWeeksAtMonth', () => {
   });
 });
 
+// TODO: 질문: eventUtils에 있는게 더 적절하지 않나요?
 describe('getEventsForDay', () => {
-  it('특정 날짜(1일)에 해당하는 이벤트만 정확히 반환한다', () => {});
+  it('특정 날짜(1일)에 해당하는 이벤트만 정확히 반환한다', () => {
+    const result = getEventsForDay(EVENTS, 1);
 
-  it('해당 날짜에 이벤트가 없을 경우 빈 배열을 반환한다', () => {});
+    expect(result).toHaveLength(1);
+  });
 
-  it('날짜가 0일 경우 빈 배열을 반환한다', () => {});
+  it('해당 날짜에 이벤트가 없을 경우 빈 배열을 반환한다', () => {
+    const result = getEventsForDay(EVENTS, 2);
 
-  it('날짜가 32일 이상인 경우 빈 배열을 반환한다', () => {});
+    expect(result).toEqual([]);
+  });
+
+  it('날짜가 0일 경우 빈 배열을 반환한다', () => {
+    const result = getEventsForDay(EVENTS, 0);
+
+    expect(result).toEqual([]);
+  });
+
+  it('날짜가 32일 이상인 경우 빈 배열을 반환한다', () => {
+    const result = getEventsForDay(EVENTS, 32);
+
+    expect(result).toEqual([]);
+  });
+
+  it('주어진 이벤트가 없을 경우 날짜와 상관없이 빈 배열을 반환한다', () => {
+    const dates = [new Date(2024, 9, 1), new Date(2024, 9, 2)];
+
+    dates.forEach((date) => {
+      const result = getEventsForDay([], date.getDate());
+
+      expect(result).toEqual([]);
+    });
+  });
 });
 
 describe('formatWeek', () => {
