@@ -223,17 +223,53 @@ describe('getEventsForDay', () => {
 });
 
 describe('formatWeek', () => {
-  it('월의 중간 날짜에 대해 올바른 주 정보를 반환한다', () => {});
+  it('월의 중간 날짜에 대해 올바른 주 정보를 반환한다', () => {
+    const date = new Date(2024, 9, 15);
 
-  it('월의 첫 주에 대해 올바른 주 정보를 반환한다', () => {});
+    const result = formatWeek(date);
 
-  it('월의 마지막 주에 대해 올바른 주 정보를 반환한다', () => {});
+    expect(result).toBe('2024년 10월 3주');
+  });
 
-  it('연도가 바뀌는 주에 대해 올바른 주 정보를 반환한다', () => {});
+  it('월의 첫 주에 대해 올바른 주 정보를 반환한다', () => {
+    const date = new Date(2024, 9, 5);
 
-  it('윤년 2월의 마지막 주에 대해 올바른 주 정보를 반환한다', () => {});
+    const result = formatWeek(date);
 
-  it('평년 2월의 마지막 주에 대해 올바른 주 정보를 반환한다', () => {});
+    expect(result).toBe('2024년 10월 1주');
+  });
+
+  it('월의 마지막 주에 대해 올바른 주 정보를 반환한다', () => {
+    const date = new Date(2024, 9, 31);
+
+    const result = formatWeek(date);
+
+    expect(result).toBe('2024년 10월 5주');
+  });
+
+  it('연도가 바뀌는 주에 대해 올바른 주 정보를 반환한다', () => {
+    // 목요일이 1월인 경우
+    expect(formatWeek(new Date(2024, 11, 31))).toBe('2025년 1월 1주');
+
+    // 목요일이 12월인 경우
+    expect(formatWeek(new Date(2026, 11, 31))).toBe('2026년 12월 5주');
+  });
+
+  it('윤년 2월의 마지막 주에 대해 올바른 주 정보를 반환한다', () => {
+    const date = new Date(2024, 1, 29);
+
+    const result = formatWeek(date);
+
+    expect(result).toBe('2024년 2월 5주');
+  });
+
+  it('평년 2월의 마지막 주에 대해 올바른 주 정보를 반환한다', () => {
+    const date = new Date(2023, 1, 28);
+
+    const result = formatWeek(date);
+
+    expect(result).toBe('2023년 3월 1주');
+  });
 });
 
 describe('formatMonth', () => {
