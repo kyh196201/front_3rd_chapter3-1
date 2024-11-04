@@ -24,21 +24,26 @@ describe('parseDateTime', () => {
   });
 
   it('잘못된 날짜 형식에 대해 Invalid Date를 반환한다', () => {
-    const date = parseDateTime('2024-13-01', '14:30');
+    const dates = ['2024-11-1', '2024-13-01'];
+    const time = '14:30';
 
-    expect(date).toBeInstanceOf(Date);
-    expect(isValidDate(date)).toBe(false);
+    dates.forEach((date) => {
+      const result = parseDateTime(date, time);
+
+      expect(result).toBeInstanceOf(Date);
+      expect(isValidDate(result)).toBe(false);
+    });
   });
 
   it('잘못된 시간 형식에 대해 Invalid Date를 반환한다', () => {
-    const date = parseDateTime('2024-12-22', '77:77');
+    const date = parseDateTime('2024-12-22', '24:01');
 
     expect(date).toBeInstanceOf(Date);
     expect(isValidDate(date)).toBe(false);
   });
 
   it('날짜 문자열이 비어있을 때 Invalid Date를 반환한다', () => {
-    const date = parseDateTime('', '77:77');
+    const date = parseDateTime('', '12:45');
 
     expect(date).toBeInstanceOf(Date);
     expect(isValidDate(date)).toBe(false);
