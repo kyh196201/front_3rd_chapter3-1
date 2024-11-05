@@ -13,15 +13,7 @@ import {
 } from '../../utils/dateUtils';
 import { EVENTS } from '../fixtures/events';
 import { LEAP_YEARS, NO_LEAP_YEARS } from '../fixtures/leapYears';
-
-/**
- * Date 객체 생성을 위한 헬퍼 함수
- * @param dateString YYYY-MM-DD 형태의 문자열
- */
-const createDate = (dateString: string): Date => {
-  const [year, month, date] = dateString.split('-').map(Number);
-  return new Date(year, month - 1, date);
-};
+import { createDate } from '../utils';
 
 describe('isLeapYear', () => {
   test.each([

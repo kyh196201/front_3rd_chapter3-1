@@ -10,3 +10,12 @@ export const parseHM = (timestamp: number) => {
   const m = fillZero(date.getMinutes());
   return `${h}:${m}`;
 };
+
+/**
+ * Date 객체 생성을 위한 헬퍼 함수
+ * @param dateString YYYY-MM-DD 형태의 문자열
+ */
+export const createDate = (dateString: string): Date => {
+  const [year, month, date] = dateString.split('-').map(Number);
+  return new Date(year, month - 1, date);
+};
