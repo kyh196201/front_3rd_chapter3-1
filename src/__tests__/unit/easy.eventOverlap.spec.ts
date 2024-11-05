@@ -154,7 +154,69 @@ describe('isOverlapping', () => {
 });
 
 describe('findOverlappingEvents', () => {
-  it('새 이벤트와 겹치는 모든 이벤트를 반환한다', () => {});
+  const currentEvents: Event[] = [
+    {
+      id: '1',
+      title: '기존 회의',
+      date: '2024-10-15',
+      startTime: '09:00',
+      endTime: '14:00',
+      description: '기존 팀 미팅',
+      location: '회의실 B',
+      category: '업무',
+      repeat: { type: 'none', interval: 0 },
+      notificationTime: 10,
+    },
+    {
+      id: '2',
+      title: '기존 회의',
+      date: '2024-10-15',
+      startTime: '15:00',
+      endTime: '16:00',
+      description: '기존 팀 미팅',
+      location: '회의실 B',
+      category: '업무',
+      repeat: { type: 'none', interval: 0 },
+      notificationTime: 10,
+    },
+  ];
 
-  it('겹치는 이벤트가 없으면 빈 배열을 반환한다', () => {});
+  it('새 이벤트와 겹치는 모든 이벤트를 반환한다', () => {
+    const newEvent: Event = {
+      id: '3',
+      title: '새 회의',
+      date: '2024-10-15',
+      startTime: '15:10',
+      endTime: '15:40',
+      description: '기존 팀 미팅',
+      location: '회의실 B',
+      category: '업무',
+      repeat: { type: 'none', interval: 0 },
+      notificationTime: 10,
+    };
+
+    const overlapping = findOverlappingEvents(newEvent, currentEvents);
+
+    expect(overlapping).toHaveLength(1);
+    expect(overlapping[0].id).toBe('2');
+  });
+
+  it('겹치는 이벤트가 없으면 빈 배열을 반환한다', () => {
+    const newEvent: Event = {
+      id: '3',
+      title: '새 회의',
+      date: '2024-11-15',
+      startTime: '15:10',
+      endTime: '15:40',
+      description: '기존 팀 미팅',
+      location: '회의실 B',
+      category: '업무',
+      repeat: { type: 'none', interval: 0 },
+      notificationTime: 10,
+    };
+
+    const overlapping = findOverlappingEvents(newEvent, currentEvents);
+
+    expect(overlapping).toHaveLength(0);
+  });
 });
