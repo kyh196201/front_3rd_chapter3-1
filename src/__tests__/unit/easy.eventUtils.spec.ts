@@ -267,8 +267,6 @@ describe('getFilteredEvents', () => {
 
     const result = getFilteredEvents(events, searchTerm, currentDate, 'week');
 
-    console.log('result', result);
-
     expect(result).toHaveLength(3);
     expect(result).toEqual(
       expect.arrayContaining([
