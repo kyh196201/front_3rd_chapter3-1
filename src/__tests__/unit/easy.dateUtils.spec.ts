@@ -344,11 +344,9 @@ describe('isDateInRange', () => {
   });
 
   it('시작일이 종료일보다 늦은 경우 모든 날짜에 대해 false를 반환한다', () => {
-    const dates = [createDate('2024-07-01'), createDate('2024-07-10'), createDate('2024-07-31')];
-
-    dates.forEach((date) => {
-      expect(isDateInRange(date, rangeEnd, rangeStart)).toBe(false);
-    });
+    expect(isDateInRange(createDate('2024-07-01'), rangeEnd, rangeStart)).toBe(false);
+    expect(isDateInRange(createDate('2024-07-10'), rangeEnd, rangeStart)).toBe(false);
+    expect(isDateInRange(createDate('2024-07-31'), rangeEnd, rangeStart)).toBe(false);
   });
 });
 
@@ -422,18 +420,16 @@ describe('formatDate', () => {
 
 describe('isValidDate', () => {
   it('올바른 날짜 형식에 대해 true를 반환한다', () => {
-    const validDates = ['2024-12-01T14:30', new Date(), new Date('2024-11-05')];
-
-    validDates.forEach((date) => {
-      expect(isValidDate(date)).toBe(true);
-    });
+    expect(isValidDate('2024-12-01T14:30')).toBe(true);
+    expect(isValidDate(new Date())).toBe(true);
+    expect(isValidDate(new Date('2024-11-05'))).toBe(true);
   });
 
   it('잘못된 날짜 형식에 대해 false를 반환한다', () => {
-    const inValidDates = ['2024-13-01T14:30', new Date('2024-12-22T77:77'), null, undefined, NaN];
-
-    inValidDates.forEach((date) => {
-      expect(isValidDate(date)).toBe(false);
-    });
+    expect(isValidDate('2024-13-01T14:30')).toBe(false);
+    expect(isValidDate(new Date('2024-12-22T77:77'))).toBe(false);
+    expect(isValidDate(null)).toBe(false);
+    expect(isValidDate(undefined)).toBe(false);
+    expect(isValidDate(NaN)).toBe(false);
   });
 });
