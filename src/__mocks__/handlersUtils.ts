@@ -4,6 +4,9 @@ import { server } from '../setupTests';
 import { Event } from '../types';
 
 // ? Medium: 아래 여러가지 use 함수는 어떤 역할을 할까요? 어떻게 사용될 수 있을까요?
+// A. 기존에 등록된 핸들러를 덮어쓸 수 있는 기능으로, 특정 테스트 케이스에서 API 환경 설정을 변경할 수 있습니다.
+// 예를 들어서, 이벤트를 등록하는 로직을 테스트할 때 초기 상태가 빈 배열일 경우
+// 이벤트를 등록하는 API를 호출한 후에 배열의 길이가 1인 것을 확인하면 쉽게 테스트를 할 수 있습니다.
 export const setupMockHandlerCreation = (initEvents = [] as Event[]) => {
   const mockEvents: Event[] = [...initEvents];
 
