@@ -86,7 +86,7 @@ describe('getDaysInMonth', () => {
     });
   });
 
-  it('유효하지 않은 월에 대해 적절히 처리한다', () => {
+  it('1 ~ 12월을 벗어난 월이 주어질 경우 에러를 throw한다', () => {
     const year = new Date().getFullYear();
 
     expect(() => getDaysInMonth(year, -1)).toThrowError(/month/);
