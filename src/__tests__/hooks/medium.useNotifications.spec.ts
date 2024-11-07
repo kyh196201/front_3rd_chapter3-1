@@ -2,8 +2,6 @@ import { act, renderHook } from '@testing-library/react';
 
 import { useNotifications } from '../../hooks/useNotifications.ts';
 import { Event } from '../../types.ts';
-import { formatDate } from '../../utils/dateUtils.ts';
-import { parseHM } from '../utils.ts';
 
 it('일정이 없을 경우 알림이 없어야 한다', () => {
   const { result } = renderHook(() => useNotifications([]));
