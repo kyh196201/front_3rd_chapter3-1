@@ -69,7 +69,7 @@ describe('일정 CRUD 및 기본 기능', () => {
     });
   });
 
-  it.only('기존 일정의 세부 정보를 수정하고 변경사항이 정확히 반영된다', async () => {
+  it('기존 일정의 세부 정보를 수정하고 변경사항이 정확히 반영된다', async () => {
     vi.setSystemTime(createDate('2024-10-15'));
 
     setupMockHandlerUpdating();
@@ -112,7 +112,26 @@ describe('일정 CRUD 및 기본 기능', () => {
     });
   });
 
-  it('일정을 삭제하고 더 이상 조회되지 않는지 확인한다', async () => {});
+  it('일정을 삭제하고 더 이상 조회되지 않는지 확인한다', async () => {
+    setupMockHandlerDeletion();
+
+    const { user } = setup(<App />);
+
+    // await waitFor(() => {
+    //   const eventList = screen.getByTestId('event-list');
+    //   expect(within(eventList).getByText('삭제할 이벤트')).toBeInTheDocument();
+    // });
+    const eventList = screen.getByTestId('event-list');
+    expect(await within(eventList).findByText('삭제할 이벤트')).toBeInTheDocument();
+
+    const deleteButtons = await screen.findAllByLabelText('Delete event');
+
+    await user.click(deleteButtons[0]);
+
+    await waitFor(() => {
+      expect(screen.queryByText('삭제할 이벤트')).not.toBeInTheDocument();
+    });
+  });
 });
 
 describe('일정 뷰', () => {
