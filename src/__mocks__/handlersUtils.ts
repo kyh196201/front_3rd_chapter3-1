@@ -95,3 +95,9 @@ export const setupMockHandlerDeletion = () => {
     })
   );
 };
+
+export const setupMockGetEventsHandler = (events: Event[]) => {
+  const mockEvents = [...events];
+
+  server.use(http.get('/api/events', () => HttpResponse.json({ events: mockEvents })));
+};

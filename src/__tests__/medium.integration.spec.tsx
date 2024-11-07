@@ -1,10 +1,11 @@
 import { ChakraProvider } from '@chakra-ui/react';
-import { render, screen, within, act, waitFor, findAllByText } from '@testing-library/react';
+import { render, screen, within, act, waitFor } from '@testing-library/react';
 import { UserEvent, userEvent } from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { ReactElement } from 'react';
 
 import {
+  setupMockGetEventsHandler,
   setupMockHandlerCreation,
   setupMockHandlerDeletion,
   setupMockHandlerUpdating,
@@ -43,6 +44,35 @@ const saveSchedule = async (
 
 const assertLoadingComplete = async () => {
   expect(await screen.findByText(/일정 로딩 완료!/)).toBeInTheDocument();
+};
+
+const createMockEvents = (): Event[] => {
+  return [
+    {
+      id: '1',
+      title: '팀 회의',
+      date: '2024-10-15',
+      startTime: '09:00',
+      endTime: '10:00',
+      description: '기존 팀 미팅',
+      location: '회의실 B',
+      category: '업무',
+      repeat: { type: 'none', interval: 0 },
+      notificationTime: 10,
+    },
+    {
+      id: '2',
+      title: '외부 미팅',
+      date: '2024-10-15',
+      startTime: '15:00',
+      endTime: '17:00',
+      description: '기존 팀 미팅',
+      location: '회의실 B',
+      category: '업무',
+      repeat: { type: 'none', interval: 0 },
+      notificationTime: 10,
+    },
+  ];
 };
 
 // ! HINT. "검색 결과가 없습니다"는 초기에 노출되는데요. 그럼 검증하고자 하는 액션이 실행되기 전에 검증해버리지 않을까요? 이 테스트를 신뢰성있게 만드려면 어떻게 할까요?
@@ -93,7 +123,7 @@ describe('일정 CRUD 및 기본 기능', () => {
     const newTitle = '새로운 회의';
     await user.clear(titleInput);
 
-    // MEMO: user.clear()를 하지 않을 경우
+    // MEMO: user.clear()를 하지 않을 경우 기존에 입력된 값의 뒤에 '새로운 회의' 텍스트가 추가됨
     await user.type(titleInput, newTitle);
 
     const dateInput = screen.getByLabelText('날짜');
@@ -201,7 +231,7 @@ describe('일정 뷰', () => {
     expect(within(cell).getByText('기존 회의')).toBeInTheDocument();
   });
 
-  it.only('달력에 1월 1일(신정)이 공휴일로 표시되는지 확인한다', async () => {
+  it('달력에 1월 1일(신정)이 공휴일로 표시되는지 확인한다', async () => {
     vi.setSystemTime(createDate('2024-01-01'));
 
     setup(<App />);
@@ -215,17 +245,166 @@ describe('일정 뷰', () => {
 });
 
 describe('검색 기능', () => {
-  it('검색 결과가 없으면, "검색 결과가 없습니다."가 표시되어야 한다.', async () => {});
+  beforeEach(() => {
+    setupMockGetEventsHandler(createMockEvents());
+  });
 
-  it("'팀 회의'를 검색하면 해당 제목을 가진 일정이 리스트에 노출된다", async () => {});
+  it('검색 결과가 없으면, "검색 결과가 없습니다."가 표시되어야 한다.', async () => {
+    const { user } = setup(<App />);
 
-  it('검색어를 지우면 모든 일정이 다시 표시되어야 한다', async () => {});
+    await assertLoadingComplete();
+
+    const eventList = screen.getByTestId('event-list');
+    expect(within(eventList).getByText('팀 회의')).toBeInTheDocument();
+
+    await user.type(screen.getByPlaceholderText('검색어를 입력하세요'), '리그 오브 레전드');
+
+    expect(screen.getByText('검색 결과가 없습니다.')).toBeInTheDocument();
+  });
+
+  it("'팀 회의'를 검색하면 해당 제목을 가진 일정이 리스트에 노출된다", async () => {
+    const { user } = setup(<App />);
+
+    await assertLoadingComplete();
+
+    const eventList = screen.getByTestId('event-list');
+    expect(within(eventList).getByText('팀 회의')).toBeInTheDocument();
+    expect(within(eventList).getByText('외부 미팅')).toBeInTheDocument();
+
+    await user.type(screen.getByPlaceholderText('검색어를 입력하세요'), '팀 회의');
+
+    expect(screen.queryByText('검색 결과가 없습니다.')).not.toBeInTheDocument();
+    expect(within(eventList).getByText('팀 회의')).toBeInTheDocument();
+    expect(within(eventList).queryByText('외부 미팅')).not.toBeInTheDocument();
+  });
+
+  it('검색어를 지우면 모든 일정이 다시 표시되어야 한다', async () => {
+    const { user } = setup(<App />);
+
+    await assertLoadingComplete();
+
+    const eventList = screen.getByTestId('event-list');
+    expect(within(eventList).getAllByLabelText('Edit event')).toHaveLength(2);
+    expect(within(eventList).getByText('외부 미팅')).toBeInTheDocument();
+
+    const searchInput = screen.getByPlaceholderText('검색어를 입력하세요');
+    await user.type(searchInput, '팀 회의');
+
+    expect(within(eventList).queryByText('외부 미팅')).not.toBeInTheDocument();
+
+    await user.clear(searchInput);
+
+    expect(within(eventList).getAllByLabelText('Delete event')).toHaveLength(2);
+    expect(within(eventList).getByText('외부 미팅')).toBeInTheDocument();
+  });
 });
 
 describe('일정 충돌', () => {
-  it('겹치는 시간에 새 일정을 추가할 때 경고가 표시된다', async () => {});
+  it('겹치는 시간에 새 일정을 추가할 때 경고가 표시된다', async () => {
+    setupMockGetEventsHandler(createMockEvents());
 
-  it('기존 일정의 시간을 수정하여 충돌이 발생하면 경고가 노출된다', async () => {});
+    const { user } = setup(<App />);
+
+    await assertLoadingComplete();
+
+    await saveSchedule(user, {
+      title: '새 회의',
+      date: '2024-10-15',
+      startTime: '16:00',
+      endTime: '16:30',
+      description: '새 회의에요',
+      location: '위치는 몰라요',
+      category: '업무',
+    });
+
+    await waitFor(() => {
+      const alertModal = screen.getByRole('alertdialog');
+      expect(within(alertModal).getByText('일정 겹침 경고')).toBeInTheDocument();
+      expect(within(alertModal).getByText(/외부 미팅/)).toBeInTheDocument();
+    });
+  });
+
+  it('일정이 겹치더라도 계속 진행하기 버튼을 클릭하면 일정이 추가된다.', async () => {
+    setupMockHandlerCreation(createMockEvents());
+
+    const { user } = setup(<App />);
+
+    await assertLoadingComplete();
+
+    await saveSchedule(user, {
+      title: '새 회의',
+      date: '2024-10-15',
+      startTime: '16:00',
+      endTime: '16:30',
+      description: '새 회의에요',
+      location: '위치는 몰라요',
+      category: '업무',
+    });
+
+    const alertModal = screen.getByRole('alertdialog');
+
+    await waitFor(() => {
+      expect(within(alertModal).getByText('일정 겹침 경고')).toBeInTheDocument();
+    });
+
+    const continueButton = within(alertModal).getByRole('button', { name: '계속 진행' });
+    expect(continueButton).toBeInTheDocument();
+    await user.click(continueButton);
+
+    await waitFor(() => {
+      const eventList = screen.getByTestId('event-list');
+      expect(within(eventList).getByText('새 회의')).toBeInTheDocument();
+    });
+  });
+
+  it('기존 일정의 시간을 수정하여 충돌이 발생하면 경고가 노출된다', async () => {
+    vi.setSystemTime(createDate('2024-10-15'));
+
+    setupMockHandlerUpdating();
+
+    const { user } = setup(<App />);
+
+    await assertLoadingComplete();
+
+    const editButtons = await screen.findAllByLabelText('Edit event');
+
+    await user.click(editButtons[0]);
+
+    const startTimeInput = screen.getByLabelText('시작 시간');
+    const endTimeInput = screen.getByLabelText('종료 시간');
+
+    await user.clear(startTimeInput);
+    await user.type(startTimeInput, '11:00');
+
+    await user.clear(endTimeInput);
+    await user.type(endTimeInput, '11:30');
+
+    await user.click(screen.getByTestId('event-submit-button'));
+
+    await waitFor(() => {
+      const alertModal = screen.getByRole('alertdialog');
+      expect(within(alertModal).getByText('일정 겹침 경고')).toBeInTheDocument();
+    });
+  });
 });
 
-it('notificationTime을 10으로 하면 지정 시간 10분 전 알람 텍스트가 노출된다', async () => {});
+it('notificationTime을 10으로 하면 지정 시간 10분 전 알람 텍스트가 노출된다', async () => {
+  vi.setSystemTime(new Date('2024-10-15T08:49:00'));
+
+  setup(<App />);
+
+  await assertLoadingComplete();
+
+  act(() => {
+    const oneMinute = 60 * 1000;
+    vi.advanceTimersByTime(oneMinute);
+  });
+
+  const noti = screen.getByRole('alert');
+
+  await waitFor(() => {
+    expect(noti).toBeInTheDocument();
+  });
+
+  expect(within(noti).getByText(/10분 후/)).toBeInTheDocument();
+});
