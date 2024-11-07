@@ -1,5 +1,5 @@
 import { ChakraProvider } from '@chakra-ui/react';
-import { render, screen, within, act } from '@testing-library/react';
+import { render, screen, within, act, waitFor } from '@testing-library/react';
 import { UserEvent, userEvent } from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { ReactElement } from 'react';
@@ -42,8 +42,30 @@ const saveSchedule = async (
 
 // ! HINT. "검색 결과가 없습니다"는 초기에 노출되는데요. 그럼 검증하고자 하는 액션이 실행되기 전에 검증해버리지 않을까요? 이 테스트를 신뢰성있게 만드려면 어떻게 할까요?
 describe('일정 CRUD 및 기본 기능', () => {
-  it('입력한 새로운 일정 정보에 맞춰 모든 필드가 이벤트 리스트에 정확히 저장된다.', async () => {
+  it.only('입력한 새로운 일정 정보에 맞춰 모든 필드가 이벤트 리스트에 정확히 저장된다.', async () => {
     // ! HINT. event를 추가 제거하고 저장하는 로직을 잘 살펴보고, 만약 그대로 구현한다면 어떤 문제가 있을 지 고민해보세요.
+    setupMockHandlerCreation();
+
+    const { user } = setup(<App />);
+
+    expect(screen.queryByText('새 회의')).not.toBeInTheDocument();
+
+    await saveSchedule(user, {
+      title: '새 회의',
+      date: '2024-10-01',
+      startTime: '22:00',
+      endTime: '23:30',
+      description: '새 회의에요',
+      location: '위치는 몰라요',
+      category: '업무',
+    });
+
+    await waitFor(() => {
+      // MEMO: calendar 영역에도 추가되기 때문에 2개의 요소가 검색되고, 테스트가 실패함
+      // event-list 안에서 요소를 검색하기 위해서 within 사용
+      const eventList = screen.getByTestId('event-list');
+      expect(within(eventList).getByText('새 회의')).toBeInTheDocument();
+    });
   });
 
   it('기존 일정의 세부 정보를 수정하고 변경사항이 정확히 반영된다', async () => {});
