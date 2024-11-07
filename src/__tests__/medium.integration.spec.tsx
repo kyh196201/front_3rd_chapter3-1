@@ -1,5 +1,5 @@
 import { ChakraProvider } from '@chakra-ui/react';
-import { render, screen, within, act, waitFor } from '@testing-library/react';
+import { render, screen, within, act, waitFor, findAllByText } from '@testing-library/react';
 import { UserEvent, userEvent } from '@testing-library/user-event';
 import { http, HttpResponse } from 'msw';
 import { ReactElement } from 'react';
@@ -39,6 +39,10 @@ const saveSchedule = async (
   await user.selectOptions(screen.getByLabelText('카테고리'), category);
 
   await user.click(screen.getByTestId('event-submit-button'));
+};
+
+const assertLoadingComplete = async () => {
+  expect(await screen.findByText(/일정 로딩 완료!/)).toBeInTheDocument();
 };
 
 // ! HINT. "검색 결과가 없습니다"는 초기에 노출되는데요. 그럼 검증하고자 하는 액션이 실행되기 전에 검증해버리지 않을까요? 이 테스트를 신뢰성있게 만드려면 어떻게 할까요?
@@ -135,15 +139,79 @@ describe('일정 CRUD 및 기본 기능', () => {
 });
 
 describe('일정 뷰', () => {
-  it('주별 뷰를 선택 후 해당 주에 일정이 없으면, 일정이 표시되지 않는다.', async () => {});
+  it('주별 뷰를 선택 후 해당 주에 일정이 없으면, 일정이 표시되지 않는다.', async () => {
+    vi.setSystemTime(createDate('2024-10-01'));
 
-  it('주별 뷰 선택 후 해당 일자에 일정이 존재한다면 해당 일정이 정확히 표시된다', async () => {});
+    const { user } = setup(<App />);
 
-  it('월별 뷰에 일정이 없으면, 일정이 표시되지 않아야 한다.', async () => {});
+    await assertLoadingComplete();
 
-  it('월별 뷰에 일정이 정확히 표시되는지 확인한다', async () => {});
+    expect(screen.queryAllByText('기존 회의')).toHaveLength(2);
 
-  it('달력에 1월 1일(신정)이 공휴일로 표시되는지 확인한다', async () => {});
+    const selectElement = screen.getByLabelText('view');
+
+    await user.selectOptions(selectElement, 'week');
+
+    expect(selectElement).toHaveValue('week');
+
+    expect(screen.getByTestId('week-view')).toHaveTextContent('2024년 10월 1주');
+
+    expect(screen.getByText('검색 결과가 없습니다.')).toBeInTheDocument();
+  });
+
+  it('주별 뷰 선택 후 해당 일자에 일정이 존재한다면 해당 일정이 정확히 표시된다', async () => {
+    vi.setSystemTime(createDate('2024-10-01'));
+
+    const { user } = setup(<App />);
+
+    await assertLoadingComplete();
+
+    expect(screen.queryAllByText('기존 회의')).toHaveLength(2);
+
+    const selectElement = screen.getByLabelText('view');
+    await user.selectOptions(selectElement, 'week');
+
+    const nextButton = screen.getByLabelText('Next');
+    await user.click(nextButton);
+    await user.click(nextButton);
+
+    expect(screen.getByTestId('week-view')).toHaveTextContent('2024년 10월 3주');
+    expect(screen.queryAllByText('기존 회의')).toHaveLength(2);
+  });
+
+  it('월별 뷰에 일정이 없으면, 일정이 표시되지 않아야 한다.', async () => {
+    vi.setSystemTime(createDate('2024-11-01'));
+
+    setup(<App />);
+
+    await assertLoadingComplete();
+
+    expect(screen.getByText('검색 결과가 없습니다.')).toBeInTheDocument();
+  });
+
+  it('월별 뷰에 일정이 정확히 표시되는지 확인한다', async () => {
+    vi.setSystemTime(createDate('2024-10-01'));
+
+    setup(<App />);
+
+    await assertLoadingComplete();
+
+    const cell = screen.getByRole('cell', { name: /15/ });
+
+    expect(within(cell).getByText('기존 회의')).toBeInTheDocument();
+  });
+
+  it.only('달력에 1월 1일(신정)이 공휴일로 표시되는지 확인한다', async () => {
+    vi.setSystemTime(createDate('2024-01-01'));
+
+    setup(<App />);
+
+    await assertLoadingComplete();
+
+    expect(screen.getByText('신정')).toBeInTheDocument();
+    const cell = screen.getByText('신정').closest('td');
+    expect(cell).toHaveTextContent('1');
+  });
 });
 
 describe('검색 기능', () => {
